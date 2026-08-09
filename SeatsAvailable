@@ -1,0 +1,9 @@
+// 5.1 Update available seats
+Flight flight = db.Flights.Find(flightId);
+
+if (flight != null)
+{
+    flight.AvailableSeats -= savedPassengers.Count;
+}
+
+db.SaveChanges();
