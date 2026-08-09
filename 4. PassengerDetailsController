@@ -7,3 +7,19 @@
         return View();
     }
 
+
+
+
+
+
+Add before @using (Html.BeginForm())
+
+@if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+
+
