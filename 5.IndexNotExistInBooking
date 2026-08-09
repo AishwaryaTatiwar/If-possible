@@ -1,0 +1,20 @@
+public ActionResult SeatSelection()
+        {
+            if (Session["UserID"] == null)
+                return RedirectToAction("Login", "User");
+
+            if (Session[SESSION_FLIGHT_ID] == null || Session[SESSION_PASSENGERS] == null)
+                return RedirectToAction("Index");
+
+            int flightId = (int)Session[SESSION_FLIGHT_ID];
+
+            ViewBag.BaseFare = Session[SESSION_FINAL_AMOUNT];
+            ViewBag.Passengers = Session[SESSION_PASSENGERS] as List<Passenger>;
+
+            ViewBag.Seats = db.FlightSeats
+                              .Where(x => x.FlightID == flightId)
+                              .OrderBy(x => x.SeatNumber)
+                              .ToList();
+
+            return View();
+        }
