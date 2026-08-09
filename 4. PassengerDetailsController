@@ -1,0 +1,9 @@
+// Check if any passenger data was received
+    if (Passengers == null || !Passengers.Any())
+    {
+        TempData["Error"] = "Please enter passenger details.";
+
+        ViewBag.Flight = flight;
+        return View();
+    }
+
