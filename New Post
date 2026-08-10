@@ -1,0 +1,20 @@
+$(document).on("submit", "#flightModal form", function (e) {
+    var form = $(this);
+
+    var flightNumber = form.find("[name='FlightNumber']").val();
+    var airline = form.find("[name='Airline']").val();
+    var source = form.find("[name='Source']").val();
+    var destination = form.find("[name='Destination']").val();
+    var departureTime = form.find("[name='DepartureTime']").val();
+    var arrivalTime = form.find("[name='ArrivalTime']").val();
+    var price = form.find("[name='Price']").val();
+    var totalSeats = form.find("[name='TotalSeats']").val();
+    var status = form.find("[name='Status']").val();
+
+    if (!flightNumber || !airline || !source || !destination ||
+        !departureTime || !arrivalTime || !price || !totalSeats || !status) {
+        e.preventDefault();
+        alert("Please fill in all the fields.");
+        return false;
+    }
+});
