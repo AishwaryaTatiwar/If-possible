@@ -1,0 +1,91 @@
+@model Airlinemgmtsystem.Flight
+@{
+    ViewBag.Title = "Add Flight";
+    Layout = null;
+}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h3><i class="bi bi-airplane"></i> Add Flight</h3>
+    </div>
+    <div class="card-body">
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Message</div>
+        }
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Flight Number</label>
+                    @Html.TextBoxFor(m => m.FlightNumber, new { @class = "form-control", placeholder = "AI101" })
+                    @Html.ValidationMessageFor(m => m.FlightNumber, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Airline</label>
+                    @Html.TextBoxFor(m => m.Airline, new { @class = "form-control", placeholder = "Air India" })
+                    @Html.ValidationMessageFor(m => m.Airline, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Source</label>
+                    @Html.TextBoxFor(m => m.Source, new { @class = "form-control", placeholder = "Nagpur" })
+                    @Html.ValidationMessageFor(m => m.Source, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Destination</label>
+                    @Html.TextBoxFor(m => m.Destination, new { @class = "form-control", placeholder = "Mumbai" })
+                    @Html.ValidationMessageFor(m => m.Destination, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Departure Time</label>
+                    @Html.TextBoxFor(m => m.DepartureTime, new { @class = "form-control", type = "datetime-local" })
+                    @Html.ValidationMessageFor(m => m.DepartureTime, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Arrival Time</label>
+                    @Html.TextBoxFor(m => m.ArrivalTime, new { @class = "form-control", type = "datetime-local" })
+                    @Html.ValidationMessageFor(m => m.ArrivalTime, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Price (₹)</label>
+                    @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", min = "1", step = "0.01" })
+                    @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Total Seats</label>
+                    @Html.TextBoxFor(m => m.TotalSeats, new { @class = "form-control", type = "number", min = "1" })
+                    @Html.ValidationMessageFor(m => m.TotalSeats, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    @Html.DropDownListFor(m => m.Status, new List<SelectListItem>
+                    {
+                        new SelectListItem { Text = "Scheduled", Value = "Scheduled" },
+                        new SelectListItem { Text = "Delayed", Value = "Delayed" },
+                        new SelectListItem { Text = "Cancelled", Value = "Cancelled" }
+                    }, "--Select Status--", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Save Flight
+            </button>
+
+            <a href="@Url.Action("ManageFlights","Admin")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        }
+    </div>
+</div>
