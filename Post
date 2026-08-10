@@ -1,0 +1,19 @@
+$(document).on("submit", "#flightModal form", function (e) {
+    e.preventDefault();
+
+    var form = $(this);
+
+    if (!form.valid()) {
+        return;
+    }
+
+    $.ajax({
+        url: form.attr("action"),
+        type: "POST",
+        data: form.serialize(),
+        success: function (data) {
+            $("#flightModal .modal-body").html(data);
+            $.validator.unobtrusive.parse("#flightModal form");
+        }
+    });
+});
