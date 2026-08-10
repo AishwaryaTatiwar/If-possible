@@ -1,0 +1,106 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult EditFlight(Flight model)
+{
+    if (Session["UserID"] == null)
+        return RedirectToAction("Login", "User");
+    if (Session["Role"].ToString() != "Admin")
+        return RedirectToAction("Index", "Home");
+    if (!ModelState.IsValid)
+        return PartialView("EditFlight", model);
+
+    if (db.Flights.Any(x => x.FlightNumber == model.FlightNumber && x.FlightID != model.FlightID))
+    {
+        ViewBag.Message = "Flight number already exists.";
+        return PartialView("EditFlight", model);
+    }
+
+    if (model.ArrivalTime <= model.DepartureTime)
+    {
+        ViewBag.Message = "Arrival time must be greater than departure time.";
+        return PartialView("EditFlight", model);
+    }
+
+    Flight flight = db.Flights.Find(model.FlightID);
+    if (flight == null)
+        return HttpNotFound();
+
+    var seats = db.FlightSeats
+        .Where(x => x.FlightID == model.FlightID)
+        .OrderBy(x => x.SeatNumber)
+        .ToList();
+
+    int bookedSeats = seats.Count(x => x.IsBooked);
+
+    if (model.TotalSeats < bookedSeats)
+    {
+        ViewBag.Message = "Total seats cannot be less than the number of booked seats.";
+        return PartialView("EditFlight", model);
+    }
+
+    flight.FlightNumber = model.FlightNumber;
+    flight.Airline = model.Airline;
+    flight.Source = model.Source;
+    flight.Destination = model.Destination;
+    flight.DepartureTime = model.DepartureTime;
+    flight.ArrivalTime = model.ArrivalTime;
+    flight.Price = model.Price;
+    flight.TotalSeats = model.TotalSeats;
+    flight.Status = model.Status;
+
+    int currentSeatCount = seats.Count;
+
+    if (model.TotalSeats > currentSeatCount)
+    {
+        int seatCount = currentSeatCount;
+        char row = (char)('A' + (seatCount / 6));
+
+        while (seatCount < model.TotalSeats)
+        {
+            for (int i = 1; i <= 6 && seatCount < model.TotalSeats; i++)
+            {
+                FlightSeat fs = new FlightSeat();
+                fs.FlightID = model.FlightID;
+                fs.SeatNumber = row.ToString() + i;
+
+                if (i == 1 || i == 6)
+                    fs.SeatType = "Window";
+                else if (i == 2 || i == 5)
+                    fs.SeatType = "Middle";
+                else
+                    fs.SeatType = "Aisle";
+
+                fs.IsBooked = false;
+                fs.PassengerID = null;
+
+                db.FlightSeats.Add(fs);
+                seatCount++;
+            }
+
+            row++;
+        }
+    }
+    else if (model.TotalSeats < currentSeatCount)
+    {
+        var seatsToRemove = seats
+            .Where(x => !x.IsBooked)
+            .OrderByDescending(x => x.SeatNumber)
+            .Take(currentSeatCount - model.TotalSeats)
+            .ToList();
+
+        if (seatsToRemove.Count < currentSeatCount - model.TotalSeats)
+        {
+            ViewBag.Message = "Cannot reduce seats because some of the seats that need to be removed are already booked.";
+            return PartialView("EditFlight", model);
+        }
+
+        db.FlightSeats.RemoveRange(seatsToRemove);
+    }
+
+    flight.AvailableSeats = model.TotalSeats - bookedSeats;
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Flight updated successfully.";
+    return RedirectToAction("ManageFlights", "Admin");
+}
