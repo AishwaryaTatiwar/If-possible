@@ -1,0 +1,42 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Airlinemgmtsystem
+{
+    [MetadataType(typeof(FlightMetadata))]
+    public partial class Flight
+    {
+    }
+
+    public class FlightMetadata
+    {
+        [Required(ErrorMessage = "Flight number is required.")]
+        [StringLength(20, ErrorMessage = "Flight number cannot exceed 20 characters.")]
+        public string FlightNumber { get; set; }
+
+        [Required(ErrorMessage = "Airline is required.")]
+        [StringLength(50, ErrorMessage = "Airline cannot exceed 50 characters.")]
+        public string Airline { get; set; }
+
+        [Required(ErrorMessage = "Source is required.")]
+        [StringLength(50, ErrorMessage = "Source cannot exceed 50 characters.")]
+        public string Source { get; set; }
+
+        [Required(ErrorMessage = "Destination is required.")]
+        [StringLength(50, ErrorMessage = "Destination cannot exceed 50 characters.")]
+        public string Destination { get; set; }
+
+        public DateTime DepartureTime { get; set; }
+
+        public DateTime ArrivalTime { get; set; }
+
+        [Range(1, 1000000, ErrorMessage = "Price must be greater than 0.")]
+        public decimal Price { get; set; }
+
+        [Range(1, 1000, ErrorMessage = "Total seats must be between 1 and 1000.")]
+        public int TotalSeats { get; set; }
+
+        [Required(ErrorMessage = "Please select a status.")]
+        public string Status { get; set; }
+    }
+}
