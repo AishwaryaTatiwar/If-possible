@@ -1,0 +1,181 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult SeatSelection(
+    int[] passengerIndex,
+    int[] seatId,
+    decimal FinalAmount)
+{
+    // 1. Check login
+    if (Session["UserID"] == null)
+        return RedirectToAction("Login", "User");
+
+    // 2. Check required session data
+    if (Session[SESSION_FLIGHT_ID] == null ||
+        Session[SESSION_PASSENGERS] == null)
+    {
+        return RedirectToAction("Index", "Home");
+    }
+
+    // 3. Get FlightID outside LINQ query
+    int flightId =
+        Convert.ToInt32(Session[SESSION_FLIGHT_ID]);
+
+    // 4. Get passengers from Session
+    var passengers =
+        Session[SESSION_PASSENGERS] as List<Passenger>;
+
+    if (passengers == null || passengers.Count == 0)
+    {
+        TempData["Message"] = "No passengers found.";
+        return RedirectToAction("SeatSelection");
+    }
+
+    // 5. Check seat data
+    if (passengerIndex == null ||
+        seatId == null ||
+        passengerIndex.Length != seatId.Length ||
+        passengerIndex.Length != passengers.Count)
+    {
+        TempData["Message"] =
+            "Please select exactly one seat for every passenger.";
+        return RedirectToAction("SeatSelection");
+    }
+
+    // 6. Create PassengerIndex -> SeatID mapping
+    var seatMap = new Dictionary<int, int>();
+
+    for (int i = 0; i < passengerIndex.Length; i++)
+    {
+        int pIndex = passengerIndex[i];
+        int selectedSeatId = seatId[i];
+
+        // Check passenger index
+        if (pIndex < 0 || pIndex >= passengers.Count)
+        {
+            TempData["Message"] = "Invalid passenger.";
+            return RedirectToAction("SeatSelection");
+        }
+
+        // Prevent duplicate passenger
+        if (seatMap.ContainsKey(pIndex))
+        {
+            TempData["Message"] =
+                "A passenger cannot have multiple seats.";
+            return RedirectToAction("SeatSelection");
+        }
+
+        // Prevent same seat being selected twice
+        if (seatMap.ContainsValue(selectedSeatId))
+        {
+            TempData["Message"] =
+                "The same seat cannot be selected twice.";
+            return RedirectToAction("SeatSelection");
+        }
+
+        // Find seat from database
+        var seat = db.FlightSeats
+            .FirstOrDefault(s =>
+                s.SeatID == selectedSeatId &&
+                s.FlightID == flightId);
+
+        if (seat == null)
+        {
+            TempData["Message"] = "Invalid seat selected.";
+            return RedirectToAction("SeatSelection");
+        }
+
+        // Check if permanently booked
+        if (seat.IsBooked)
+        {
+            TempData["Message"] =
+                "Seat " + seat.SeatNumber + " is already booked.";
+            return RedirectToAction("SeatSelection");
+        }
+
+        // Add passenger -> seat
+        seatMap.Add(pIndex, selectedSeatId);
+    }
+
+    // 7. Get current user and time
+    int userId = Convert.ToInt32(Session["UserID"]);
+    DateTime now = DateTime.Now;
+    DateTime lockExpiry = now.AddMinutes(7);
+
+    // 8. Remove expired locks for this flight
+    var expiredLocks = db.SeatLocks
+        .Where(x =>
+            x.FlightID == flightId &&
+            x.LockExpiryTime <= now)
+        .ToList();
+
+    if (expiredLocks.Any())
+    {
+        db.SeatLocks.RemoveRange(expiredLocks);
+        db.SaveChanges();
+    }
+
+    // 9. Check whether selected seats are locked by another user
+    foreach (int selectedSeatId in seatMap.Values)
+    {
+        var existingLock = db.SeatLocks
+            .FirstOrDefault(x =>
+                x.SeatID == selectedSeatId &&
+                x.FlightID == flightId &&
+                x.LockExpiryTime > now);
+
+        if (existingLock != null &&
+            existingLock.UserID != userId)
+        {
+            var lockedSeat = db.FlightSeats
+                .FirstOrDefault(x =>
+                    x.SeatID == selectedSeatId);
+
+            TempData["Message"] =
+                "Seat " + lockedSeat.SeatNumber +
+                " is temporarily reserved by another user.";
+
+            return RedirectToAction("SeatSelection");
+        }
+    }
+
+    // 10. Create SeatLock records
+    foreach (int selectedSeatId in seatMap.Values)
+    {
+        var existingLock = db.SeatLocks
+            .FirstOrDefault(x =>
+                x.SeatID == selectedSeatId &&
+                x.FlightID == flightId &&
+                x.LockExpiryTime > now);
+
+        // If this user already has the lock,
+        // don't create another record
+        if (existingLock == null)
+        {
+            var seatLock = new SeatLock
+            {
+                FlightID = flightId,
+                SeatID = selectedSeatId,
+                UserID = userId,
+                LockTime = now,
+                LockExpiryTime = lockExpiry
+            };
+
+            db.SeatLocks.Add(seatLock);
+        }
+    }
+
+    // 11. Save SeatLocks
+    db.SaveChanges();
+
+    // 12. Store selected seats in Session
+    Session[SESSION_SEAT_MAP] = seatMap;
+
+    // 13. Store final amount in Session
+    Session[SESSION_FINAL_AMOUNT] = FinalAmount;
+
+    // 14. Store lock expiry for UI countdown
+    Session["SeatLockExpiry"] = lockExpiry;
+
+    // 15. Go to Payment
+    return RedirectToAction("Payment");
+}
