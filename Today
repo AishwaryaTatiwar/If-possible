@@ -1,0 +1,73 @@
+// 9. Create 7-minute seat locks
+int userId = Convert.ToInt32(Session["UserID"]);
+DateTime lockTime = DateTime.Now;
+DateTime lockExpiryTime = lockTime.AddMinutes(7);
+
+// Remove expired locks for this flight
+var expiredLocks = db.SeatLocks
+    .Where(x => x.FlightID == flightId &&
+                x.LockExpiryTime <= lockTime)
+    .ToList();
+
+if (expiredLocks.Any())
+{
+    db.SeatLocks.RemoveRange(expiredLocks);
+    db.SaveChanges();
+}
+
+// Check whether any selected seat is already locked by another user
+foreach (var selectedSeatId in seatMap.Values)
+{
+    var existingLock = db.SeatLocks
+        .FirstOrDefault(x => x.FlightID == flightId &&
+                             x.SeatID == selectedSeatId &&
+                             x.LockExpiryTime > lockTime);
+
+    if (existingLock != null && existingLock.UserID != userId)
+    {
+        TempData["Message"] =
+            "One of the selected seats is currently being booked by another user. Please select another seat.";
+
+        return RedirectToAction("SeatSelection");
+    }
+}
+
+// Remove any previous locks made by this user for this flight
+var oldUserLocks = db.SeatLocks
+    .Where(x => x.FlightID == flightId &&
+                x.UserID == userId)
+    .ToList();
+
+if (oldUserLocks.Any())
+{
+    db.SeatLocks.RemoveRange(oldUserLocks);
+}
+
+// Create new 7-minute locks
+foreach (var selectedSeatId in seatMap.Values)
+{
+    SeatLock seatLock = new SeatLock
+    {
+        FlightID = flightId,
+        SeatID = selectedSeatId,
+        UserID = userId,
+        LockTime = lockTime,
+        LockExpiryTime = lockExpiryTime
+    };
+
+    db.SeatLocks.Add(seatLock);
+}
+
+db.SaveChanges();
+
+// 10. Store selected seats in Session
+Session[SESSION_SEAT_MAP] = seatMap;
+
+// 11. Store final amount
+Session[SESSION_FINAL_AMOUNT] = FinalAmount;
+
+// 12. Store lock expiry for displaying timer
+Session["SeatLockExpiry"] = lockExpiryTime;
+
+// 13. Go to Payment
+return RedirectToAction("Payment");
