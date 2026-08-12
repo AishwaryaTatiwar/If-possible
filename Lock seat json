@@ -1,0 +1,73 @@
+[HttpPost]
+public JsonResult LockSeat(int flightId, int seatId)
+{
+    if (Session["UserID"] == null)
+    {
+        return Json(new { success = false, message = "Please login again." });
+    }
+
+    int userId = Convert.ToInt32(Session["UserID"]);
+    DateTime now = DateTime.Now;
+
+    var expiredLocks = db.SeatLocks
+        .Where(x => x.FlightID == flightId &&
+                    x.LockExpiryTime <= now)
+        .ToList();
+
+    if (expiredLocks.Any())
+    {
+        db.SeatLocks.RemoveRange(expiredLocks);
+        db.SaveChanges();
+    }
+
+    var seat = db.FlightSeats
+        .FirstOrDefault(x => x.FlightID == flightId &&
+                             x.SeatID == seatId);
+
+    if (seat == null)
+        return Json(new { success = false, message = "Invalid seat." });
+
+    if (seat.IsBooked)
+        return Json(new { success = false, message = "Seat is already booked." });
+
+    var existingLock = db.SeatLocks
+        .FirstOrDefault(x => x.FlightID == flightId &&
+                             x.SeatID == seatId &&
+                             x.LockExpiryTime > now);
+
+    if (existingLock != null)
+    {
+        if (existingLock.UserID == userId)
+        {
+            return Json(new
+            {
+                success = true,
+                expiry = existingLock.LockExpiryTime
+            });
+        }
+
+        return Json(new
+        {
+            success = false,
+            message = "This seat is currently being selected by another user."
+        });
+    }
+
+    var newLock = new SeatLock
+    {
+        FlightID = flightId,
+        SeatID = seatId,
+        UserID = userId,
+        LockTime = now,
+        LockExpiryTime = now.AddMinutes(7)
+    };
+
+    db.SeatLocks.Add(newLock);
+    db.SaveChanges();
+
+    return Json(new
+    {
+        success = true,
+        expiry = newLock.LockExpiryTime
+    });
+}
