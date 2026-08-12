@@ -1,0 +1,18 @@
+CREATE TABLE SeatLock
+(
+    SeatLockID INT IDENTITY(1,1) PRIMARY KEY,
+    FlightID INT NOT NULL,
+    SeatID INT NOT NULL,
+    UserID INT NOT NULL,
+    LockTime DATETIME NOT NULL,
+    LockExpiryTime DATETIME NOT NULL,
+
+    CONSTRAINT FK_SeatLock_Flight
+        FOREIGN KEY (FlightID) REFERENCES Flight(FlightID),
+
+    CONSTRAINT FK_SeatLock_FlightSeat
+        FOREIGN KEY (SeatID) REFERENCES FlightSeat(SeatID),
+
+    CONSTRAINT FK_SeatLock_User
+        FOREIGN KEY (UserID) REFERENCES [User](UserID)
+);
