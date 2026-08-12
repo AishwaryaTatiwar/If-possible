@@ -1,0 +1,100 @@
+[HttpPost]
+public JsonResult LockSeat(int flightId, int seatId)
+{
+    int userId = Convert.ToInt32(Session["UserID"]);
+    DateTime now = DateTime.Now;
+
+    var expiredLocks = db.SeatLocks
+        .Where(x => x.FlightID == flightId &&
+                    x.LockExpiryTime <= now)
+        .ToList();
+
+    if (expiredLocks.Any())
+    {
+        db.SeatLocks.RemoveRange(expiredLocks);
+        db.SaveChanges();
+    }
+
+    var existingLock = db.SeatLocks
+        .FirstOrDefault(x => x.FlightID == flightId &&
+                             x.SeatID == seatId &&
+                             x.LockExpiryTime > now);
+
+    if (existingLock != null && existingLock.UserID != userId)
+    {
+        return Json(new
+        {
+            success = false,
+            message = "This seat is currently being selected by another user."
+        });
+    }
+
+    if (existingLock == null)
+    {
+        DateTime expiry = now.AddMinutes(7);
+
+        db.SeatLocks.Add(new SeatLock
+        {
+            FlightID = flightId,
+            SeatID = seatId,
+            UserID = userId,
+            LockTime = now,
+            LockExpiryTime = expiry
+        });
+
+        db.SaveChanges();
+
+        return Json(new
+        {
+            success = true,
+            expiry = expiry
+        });
+    }
+
+    return Json(new
+    {
+        success = true,
+        expiry = existingLock.LockExpiryTime
+    });
+}
+
+
+function selectSeatAfterLock(button, seatId, seatNumber, seatType) {
+
+    // Check if this seat is already selected
+    for (var passenger in selectedSeats) {
+        if (selectedSeats[passenger].seatId == seatId) {
+            alert("This seat is already selected.");
+            return;
+        }
+    }
+
+    // If passenger already has a seat, remove old selection
+    if (selectedSeats[currentPassenger]) {
+        var oldSeat = selectedSeats[currentPassenger];
+
+        document.querySelectorAll(".seat").forEach(function (btn) {
+            if (btn.getAttribute("data-seat-id") == oldSeat.seatId) {
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-outline-primary");
+            }
+        });
+    }
+
+    // Assign new seat
+    selectedSeats[currentPassenger] = {
+        seatId: seatId,
+        seatNumber: seatNumber,
+        seatType: seatType
+    };
+
+    // Highlight selected seat
+    document.querySelectorAll(".seat").forEach(function (btn) {
+        if (btn.getAttribute("data-seat-id") == seatId) {
+            btn.classList.remove("btn-outline-primary");
+            btn.classList.add("btn-primary");
+        }
+    });
+
+    updateSelectedSeats();
+}
