@@ -1,0 +1,12 @@
+<div class="card-header bg-primary text-white">
+    <h3>Seat Selection</h3>
+</div>
+
+<div class="card-body">
+
+    <div id="seatLockTimer" class="alert alert-warning text-center" style="display:none;">
+        Your selected seat(s) are reserved for
+        <strong id="timerDisplay">07:00</strong>
+    </div>
+
+    <h5>Select passenger</h5>
