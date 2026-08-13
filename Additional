@@ -1,0 +1,65 @@
+<h5>Select Seat</h5>
+
+<div class="seat-legend mb-3">
+    <span class="legend-item">
+        <span class="legend-box available-legend"></span>
+        Available
+    </span>
+
+    <span class="legend-item">
+        <span class="legend-box selected-legend"></span>
+        Selected
+    </span>
+
+    <span class="legend-item">
+        <span class="legend-box booked-legend"></span>
+        Booked
+    </span>
+
+    <span class="legend-item">
+        <span class="legend-box locked-legend"></span>
+        Temporarily Locked
+    </span>
+</div>
+
+<div id="aircraft-seats" class="aircraft-seats @(seats.Count > 150 ? "large-seats" : seats.Count <= 30 ? "small-seats" : "")">
+
+.seat-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.legend-box {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    margin-right: 7px;
+    border-radius: 4px;
+    border: 1px solid #999;
+}
+
+.available-legend {
+    background-color: white;
+}
+
+.selected-legend {
+    background-color: #007bff;
+}
+
+.booked-legend {
+    background-color: #6c757d;
+}
+
+.locked-legend {
+    background-color: #dc3545;
+}
