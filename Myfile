@@ -1,0 +1,15 @@
+<div class="col-md-6 mb-3">
+    <label class="form-label">No. of Rows</label>
+    <input type="number" id="noOfRows" name="noOfRows"
+           class="form-control" min="1" placeholder="26" />
+</div>
+
+<div class="col-md-6 mb-3">
+    <label class="form-label">Total Seats</label>
+    @Html.TextBoxFor(m => m.TotalSeats, new
+    {
+        @class = "form-control",
+        id = "totalSeats",
+        @readonly = "readonly"
+    })
+</div>
