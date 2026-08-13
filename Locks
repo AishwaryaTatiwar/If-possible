@@ -1,0 +1,11 @@
+var existingLock = db.SeatLocks
+    .FirstOrDefault(x =>
+        x.FlightID == flightId &&
+        x.SeatID == selectedSeatId &&
+        x.LockExpiryTime > DateTime.Now);
+
+if (existingLock != null && existingLock.UserID != Convert.ToInt32(Session["UserID"]))
+{
+    TempData["Message"] = "Seat " + seat.SeatNumber + " is currently being selected by another user.";
+    return RedirectToAction("SeatSelection");
+}
