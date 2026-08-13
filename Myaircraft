@@ -1,0 +1,37 @@
+.aircraft-seats {
+    width: 100%;
+    max-width: 900px;
+    max-height: 500px;
+    margin: 20px auto;
+    padding: 35px 20px;
+    background: #eeeeee;
+    border-radius: 120px 120px 40px 40px;
+    border: 2px solid #cccccc;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 8px;
+    min-width: max-content;
+}
+
+.seat {
+    width: 42px;
+    height: 36px;
+    flex: 0 0 42px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0;
+}
+
+.aisle {
+    width: 35px;
+    height: 36px;
+    flex: 0 0 35px;
+}
