@@ -1,0 +1,20 @@
+.seat {
+    width: 42px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0;
+}
+
+.aircraft-seats.small-seats .seat {
+    width: 48px;
+    height: 40px;
+    font-size: 11px;
+}
+
+.aircraft-seats.large-seats .seat {
+    width: 34px;
+    height: 30px;
+    font-size: 9px;
+}
