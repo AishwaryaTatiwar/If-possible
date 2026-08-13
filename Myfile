@@ -13,3 +13,10 @@
         @readonly = "readonly"
     })
 </div>
+
+<script>
+    document.getElementById("noOfRows").addEventListener("input", function () {
+        var rows = parseInt(this.value) || 0;
+        document.getElementById("totalSeats").value = rows * 6;
+    });
+</script>
