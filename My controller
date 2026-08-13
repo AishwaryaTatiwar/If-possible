@@ -1,0 +1,28 @@
+[HttpGet]
+public JsonResult GetLockedSeats(int flightId)
+{
+    if (Session["UserID"] == null)
+    {
+        return Json(new
+        {
+            success = false,
+            message = "Please login again."
+        }, JsonRequestBehavior.AllowGet);
+    }
+
+    int userId = Convert.ToInt32(Session["UserID"]);
+    DateTime now = DateTime.Now;
+
+    var lockedSeatIds = db.SeatLocks
+        .Where(x => x.FlightID == flightId &&
+                    x.LockExpiryTime > now &&
+                    x.UserID != userId)
+        .Select(x => x.SeatID)
+        .ToList();
+
+    return Json(new
+    {
+        success = true,
+        lockedSeatIds = lockedSeatIds
+    }, JsonRequestBehavior.AllowGet);
+}
