@@ -1,0 +1,36 @@
+@for (int i = 0; i < seats.Count; i += 6)
+{
+    var rowNumber = (i / 6) + 1;
+
+    <div class="seat-row">
+        @for (int j = 0; j < 6 && (i + j) < seats.Count; j++)
+        {
+            var seat = seats[i + j];
+            var seatNumber = ((char)('A' + j)).ToString() + rowNumber;
+
+            if (j == 3)
+            {
+                <div class="aisle"></div>
+            }
+
+            if (seat.IsBooked)
+            {
+                <button type="button"
+                        class="seat booked-seat"
+                        disabled>
+                    @seatNumber
+                </button>
+            }
+            else
+            {
+                <button type="button"
+                        class="seat available-seat"
+                        data-seat-id="@seat.SeatID"
+                        data-seat-number="@seatNumber"
+                        data-seat-type="@seat.SeatType">
+                    @seatNumber
+                </button>
+            }
+        }
+    </div>
+}
