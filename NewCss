@@ -72,3 +72,9 @@
     padding-top: 50px;
     padding-bottom: 50px;
 }
+.booked-seat {
+    background: #6c757d;
+    border: 2px solid #6c757d;
+    color: white;
+    cursor: not-allowed;
+}
