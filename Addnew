@@ -1,0 +1,70 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult AddFlight(Flight model, int noOfRows)
+{
+    if (Session["UserID"] == null)
+        return RedirectToAction("Login", "User");
+
+    if (Session["Role"].ToString() != "Admin")
+        return RedirectToAction("Index", "Home");
+
+    if (noOfRows <= 0)
+    {
+        ViewBag.Message = "Number of rows must be greater than 0.";
+        return PartialView("AddFlight", model);
+    }
+
+    if (ModelState.IsValid)
+        return PartialView("AddFlight", model);
+
+    if (db.Flights.Any(f => f.FlightNumber == model.FlightNumber))
+    {
+        ViewBag.Message = "Flight number already exists.";
+        return PartialView("AddFlight", model);
+    }
+
+    if (model.DepartureTime > model.ArrivalTime)
+    {
+        ViewBag.Message = "Arrival time must be greater than departure time.";
+        return PartialView("AddFlight", model);
+    }
+
+    // 6 seats in every row: A, B, C, D, E, F
+    model.TotalSeats = noOfRows * 6;
+    model.AvailableSeats = model.TotalSeats;
+
+    db.Flights.Add(model);
+    db.SaveChanges();
+
+    // Populate FlightSeats table
+    int seatCount = 0;
+
+    for (int number = 1; number <= noOfRows; number++)
+    {
+        for (char column = 'A'; column <= 'F'; column++)
+        {
+            FlightSeat fs = new FlightSeat();
+
+            fs.FlightID = model.FlightID;
+            fs.SeatNumber = column.ToString() + number;
+
+            if (column == 'A' || column == 'F')
+                fs.SeatType = "Window";
+            else if (column == 'B' || column == 'E')
+                fs.SeatType = "Middle";
+            else
+                fs.SeatType = "Aisle";
+
+            fs.IsBooked = false;
+            fs.PassengerID = null;
+
+            db.FlightSeats.Add(fs);
+            seatCount++;
+        }
+    }
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Flight added successfully.";
+    return RedirectToAction("ManageFlights", "Admin");
+}
