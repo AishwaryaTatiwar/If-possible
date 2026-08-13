@@ -1,0 +1,56 @@
+.locked-seat {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+    cursor: not-allowed;
+}
+
+function checkLockedSeats() {
+    var flightId = document.getElementById("flightId").value;
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", "@Url.Action("GetLockedSeats", "Booking")?flightId=" + flightId, true);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+
+            if (!response.success) {
+                return;
+            }
+
+            var lockedSeatIds = response.lockedSeatIds;
+
+            document.querySelectorAll(".seat").forEach(function (button) {
+
+                // Don't change booked seats
+                if (button.classList.contains("booked-seat")) {
+                    return;
+                }
+
+                var seatId = parseInt(button.getAttribute("data-seat-id"));
+
+                // Check whether this seat is currently locked by another user
+                if (lockedSeatIds.indexOf(seatId) !== -1) {
+                    button.classList.remove("available-seat");
+                    button.classList.add("locked-seat");
+                    button.disabled = true;
+                }
+                else {
+                    // If lock has expired, make it available again
+                    // But don't disturb a seat selected by the current user
+                    if (!button.classList.contains("btn-primary")) {
+                        button.classList.remove("locked-seat");
+                        button.classList.add("available-seat");
+                        button.disabled = false;
+                    }
+                }
+            });
+        }
+    };
+
+    xhr.send();
+}
+checkLockedSeats();
+setInterval(checkLockedSeats, 2000);
