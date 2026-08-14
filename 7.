@@ -1,0 +1,36 @@
+function startSeatLockTimer(expiry) {
+    seatLockExpiry = new Date(expiry).getTime();
+
+    document.getElementById("seatLockTimer").style.display = "block";
+
+    if (seatLockTimer != null) {
+        clearInterval(seatLockTimer);
+    }
+
+    seatLockTimer = setInterval(function () {
+        var now = new Date().getTime();
+        var remaining = seatLockExpiry - now;
+
+        if (remaining <= 0) {
+            clearInterval(seatLockTimer);
+            seatLockTimer = null;
+
+            document.getElementById("timerDisplay").innerHTML = "00:00";
+            alert("Your seat lock has expired. Please select your seat again.");
+
+            window.location.href = '@Url.Action("SeatSelection", "Booking")';
+            return;
+        }
+
+        var minutes = Math.floor(remaining / (1000 * 60));
+        var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+        document.getElementById("timerDisplay").innerHTML =
+            (minutes < 10 ? "0" : "") + minutes + ":" +
+            (seconds < 10 ? "0" : "") + seconds;
+    }, 1000);
+}
+<script>
+    var expiry = '@Convert.ToDateTime(Session["SEAT_LOCK_EXPIRY"]).ToString("yyyy-MM-ddTHH:mm:ss")';
+    startSeatLockTimer(expiry);
+</script>
