@@ -1,0 +1,5 @@
+ViewBag.Seats = db.FlightSeats
+    .Where(x => x.FlightID == flightId)
+    .OrderBy(x => Convert.ToInt32(x.SeatNumber.Substring(1)))
+    .ThenBy(x => x.SeatNumber.Substring(0, 1))
+    .ToList();
