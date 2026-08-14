@@ -1,0 +1,28 @@
+// Create seat locks only after ALL seats have been validated
+DateTime lockExpiry = DateTime.Now.AddMinutes(7);
+
+foreach (int selectedSeatId in seatMap.Values)
+{
+    db.SeatLocks.Add(new SeatLock
+    {
+        FlightID = flightId,
+        SeatID = selectedSeatId,
+        UserID = Convert.ToInt32(Session["UserID"]),
+        LockTime = DateTime.Now,
+        LockExpiryTime = lockExpiry
+    });
+}
+
+db.SaveChanges();
+
+// Store selected seats in Session
+Session[SESSION_SEAT_MAP] = seatMap;
+
+// Store final amount in Session
+Session[SESSION_FINAL_AMOUNT] = FinalAmount;
+
+// Store common expiry time for Payment page
+Session[SESSION_SEAT_LOCK_EXPIRY] = lockExpiry;
+
+// Go to Payment
+return RedirectToAction("Payment");
