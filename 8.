@@ -1,0 +1,21 @@
+DateTime expiry = DateTime.Now.AddMinutes(7);
+
+foreach (int selectedSeatId in seatMap.Values)
+{
+    db.SeatLocks.Add(new SeatLock
+    {
+        FlightID = flightId,
+        SeatID = selectedSeatId,
+        UserID = userId,
+        LockTime = DateTime.Now,
+        LockExpiryTime = expiry
+    });
+}
+
+db.SaveChanges();
+
+Session[SESSION_SEAT_MAP] = seatMap;
+Session[SESSION_FINAL_AMOUNT] = FinalAmount;
+Session["SEAT_LOCK_EXPIRY"] = expiry;
+
+return RedirectToAction("Payment");
