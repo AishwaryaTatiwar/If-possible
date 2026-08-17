@@ -1,0 +1,129 @@
+@model IEnumerable<Airlinemgmtsystem.Booking>
+@{
+    ViewBag.Title = "Manage Bookings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link href="~/Content/Sites.css" rel="stylesheet" />
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h3>Manage Bookings</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>User ID</th>
+                    <th>Flight ID</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th width="180">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.BookingID</td>
+                        <td>@item.UserID</td>
+                        <td>@item.FlightID</td>
+                        <td>@item.BookingDate.ToString("dd MMM yyyy")</td>
+                        <td>@item.TotalAmount</td>
+                        <td>
+                            @if (item.BookingStatus == "Confirmed")
+                            {
+                                <span class="badge bg-success">Confirmed</span>
+                            }
+                            else if (item.BookingStatus == "Cancelled")
+                            {
+                                <span class="badge bg-danger">Cancelled</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">Pending</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="javascript:void(0)"
+                               class="btn btn-info btn-sm edit-booking-btn"
+                               data-id="@item.BookingID">
+                                Edit
+                            </a>
+                            <a href="@Url.Action("DeleteBooking", "Admin", new { id = item.BookingID })"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this booking?')">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (ViewBag.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("ManageBooking", "Admin", new { page = ViewBag.CurrentPage - 1 })">
+                                Previous
+                            </a>
+                        </li>
+                    }
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("ManageBooking", "Admin", new { page = i })">
+                                @i
+                            </a>
+                        </li>
+                    }
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("ManageBooking", "Admin", new { page = ViewBag.CurrentPage + 1 })">
+                                Next
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>
+<div id="editBookingModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Booking Status</h5>
+                <button type="button" class="btn-close" data-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+    $(".edit-booking-btn").click(function () {
+        var id = $(this).data("id");
+        $.ajax({
+            url: '@Url.Action("EditBooking", "Admin")',
+            type: 'GET',
+            data: { id: id },
+            success: function (data) {
+                $("#editBookingModal .modal-body").html(data);
+                $("#editBookingModal").modal("show");
+            },
+            error: function () {
+                alert("Unable to load booking.");
+            }
+        });
+    });
+});
+</script>
