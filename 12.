@@ -1,0 +1,21 @@
+protected void Application_PostAuthenticateRequest(object sender, EventArgs e)
+{
+    if (HttpContext.Current.User != null &&
+        HttpContext.Current.User.Identity.IsAuthenticated)
+    {
+        string username = HttpContext.Current.User.Identity.Name;
+
+        using (var db = new AirlineMgmtSystemEntities())
+        {
+            var user = db.Users.FirstOrDefault(x => x.Username == username);
+
+            if (user != null)
+            {
+                HttpContext.Current.User = new GenericPrincipal(
+                    HttpContext.Current.User.Identity,
+                    new[] { user.Role }
+                );
+            }
+        }
+    }
+}
