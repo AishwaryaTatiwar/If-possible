@@ -1,0 +1,48 @@
+public ActionResult ManageUsers(string search, string sortOrder, int page = 1, int pageSize = 5)
+{
+    var users = db.Users.AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(search))
+    {
+        search = search.Trim();
+        users = users.Where(u => u.Username.Contains(search));
+    }
+
+    int totalUsers = users.Count();
+    int totalPages = (int)Math.Ceiling((double)totalUsers / pageSize);
+
+    if (page < 1)
+        page = 1;
+
+    if (totalPages > 0 && page > totalPages)
+        page = totalPages;
+
+    switch (sortOrder)
+    {
+        case "username_desc":
+            users = users.OrderByDescending(u => u.Username);
+            break;
+        case "username":
+            users = users.OrderBy(u => u.Username);
+            break;
+        case "userid_desc":
+            users = users.OrderByDescending(u => u.UserID);
+            break;
+        default:
+            users = users.OrderBy(u => u.UserID);
+            break;
+    }
+
+    var userList = users
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    ViewBag.CurrentPage = page;
+    ViewBag.PageSize = pageSize;
+    ViewBag.TotalPages = totalPages;
+    ViewBag.Search = search;
+    ViewBag.SortOrder = sortOrder;
+
+    return View(userList);
+}
