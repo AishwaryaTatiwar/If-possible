@@ -1,0 +1,17 @@
+public ActionResult ManageSeats(int page = 1, int pageSize = 5)
+{
+    var flights = db.Flights
+        .OrderBy(f => f.FlightID)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    int totalRecords = db.Flights.Count();
+    int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+    ViewBag.CurrentPage = page;
+    ViewBag.TotalPages = totalPages;
+    ViewBag.PageSize = pageSize;
+
+    return View(flights);
+}
