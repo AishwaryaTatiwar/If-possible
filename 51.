@@ -1,0 +1,56 @@
+public ActionResult ManagePassengers(int? flightId, string search, int page = 1, int pageSize = 10)
+{
+    var query = db.Passengers.AsQueryable();
+
+    if (flightId.HasValue)
+    {
+        query = query.Where(p => p.Booking.FlightID == flightId.Value);
+    }
+
+    if (!string.IsNullOrEmpty(search))
+    {
+        query = query.Where(p =>
+            p.FirstName.Contains(search) ||
+            p.LastName.Contains(search) ||
+            p.Email.Contains(search));
+    }
+
+    var flights = db.Flights
+        .OrderBy(f => f.FlightID)
+        .ToList();
+
+    int totalRecords = query.Count();
+    int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+    var passengers = query
+        .OrderBy(p => p.PassengerID)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    var seatNumbers = new Dictionary<int, string>();
+
+    foreach (var passenger in passengers)
+    {
+        if (passenger.FlightSeatID.HasValue)
+        {
+            var seat = db.FlightSeats
+                .FirstOrDefault(s => s.FlightSeatID == passenger.FlightSeatID.Value);
+
+            if (seat != null)
+            {
+                seatNumbers[passenger.PassengerID] = seat.SeatNumber;
+            }
+        }
+    }
+
+    ViewBag.Flights = flights;
+    ViewBag.SelectedFlight = flightId;
+    ViewBag.Search = search;
+    ViewBag.SeatNumbers = seatNumbers;
+    ViewBag.CurrentPage = page;
+    ViewBag.TotalPages = totalPages;
+    ViewBag.PageSize = pageSize;
+
+    return View(passengers);
+}
