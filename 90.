@@ -1,0 +1,18 @@
+@if (Session["Role"] != null && Session["Role"].ToString() == "Customer")
+{
+    <li class="nav-item">
+        <a class="nav-link @(currentAction == "Index" && currentController == "Home" ? "active" : "")" href="@Url.Action("Index","Home")">
+            <i class="bi bi-house-door"></i>Home
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentAction == "SearchFlights" && currentController == "Home" ? "active" : "")" href="@Url.Action("SearchFlights","Home")">
+            <i class="bi bi-search"></i>Search Flights
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentAction == "Profile" && currentController == "User" ? "active" : "")" href="@Url.Action("Profile","User")">
+            <i class="bi bi-person"></i>Profile
+        </a>
+    </li>
+}
