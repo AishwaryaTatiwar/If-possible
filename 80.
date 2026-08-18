@@ -1,0 +1,33 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"] as string;
+    var currentController = ViewContext.RouteData.Values["controller"] as string;
+}
+<li class="nav-item">
+    <a class="nav-link @(currentAction == "Dashboard" && currentController == "Admin" ? "active" : "")" href="@Url.Action("Dashboard","Admin")">
+        <i class="bi bi-speedometer2"></i>Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(currentAction == "ManageFlights" && currentController == "Admin" ? "active" : "")" href="@Url.Action("ManageFlights","Admin")">
+        <i class="bi bi-airplane"></i>Manage Schedules
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(currentAction == "ManageBooking" && currentController == "Admin" ? "active" : "")" href="@Url.Action("ManageBooking","Admin")">
+        <i class="bi bi-journal-check"></i>Manage Bookings
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(currentAction == "ManageUsers" && currentController == "Admin" ? "active" : "")" href="@Url.Action("ManageUsers","Admin")">
+        <i class="bi bi-people"></i>Manage Users
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(currentAction == "ManagePassengers" && currentController == "Admin" ? "active" : "")" href="@Url.Action("ManagePassengers","Admin")">
+        <i class="bi bi-people"></i>Manage Passengers
+    </a>
+</li>
+
+.nav-link.active {
+    color: black !important;
+}
