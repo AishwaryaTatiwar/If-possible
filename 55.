@@ -1,0 +1,54 @@
+<thead class="table-dark">
+    <tr>
+        <th>Passenger ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Booking ID</th>
+        <th>Seat ID</th>
+        <th>Seat Number</th>
+    </tr>
+</thead>
+<tbody>
+    @if (Model.Any())
+    {
+        foreach (var passenger in Model)
+        {
+            <tr>
+                <td>@passenger.PassengerID</td>
+                <td>@passenger.PassengerName</td>
+                <td>@passenger.PassengerAge</td>
+                <td>@passenger.PassengerGender</td>
+                <td>@passenger.BookingID</td>
+                <td>
+                    @if (passenger.FlightSeatID != null)
+                    {
+                        @passenger.FlightSeatID
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not Assigned</span>
+                    }
+                </td>
+                <td>
+                    @if (passenger.FlightSeat != null)
+                    {
+                        @passenger.FlightSeat.SeatNumber
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not Assigned</span>
+                    }
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="7" class="text-center text-muted">
+                No passengers found.
+            </td>
+        </tr>
+    }
+</tbody>
