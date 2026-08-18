@@ -1,0 +1,143 @@
+@model IEnumerable<Airlinemgmtsystem.Models.Passenger>
+
+@{
+    ViewBag.Title = "Manage Passengers";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-center mb-4">Manage Passengers</h2>
+
+    <!-- Flight Filter -->
+    <form method="get" action="@Url.Action("ManagePassengers", "Admin")">
+        <div class="row mb-4">
+
+            <div class="col-md-4">
+                <label class="form-label">Filter by Flight</label>
+
+                <select name="flightId" class="form-select">
+                    <option value="">All Flights</option>
+
+                    @foreach (var flight in ViewBag.Flights)
+                    {
+                        <option value="@flight.FlightID"
+                                @(ViewBag.SelectedFlight == flight.FlightID ? "selected" : "")>
+                            @flight.FlightName
+                            - @flight.Source to @flight.Destination
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    Filter
+                </button>
+
+                <a href="@Url.Action("ManagePassengers", "Admin")"
+                   class="btn btn-secondary">
+                    Clear
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- Passenger List -->
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-hover">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Passenger ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Booking ID</th>
+                    <th>Seat</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @if (Model.Any())
+                {
+                    foreach (var passenger in Model)
+                    {
+                        <tr>
+                            <td>@passenger.PassengerID</td>
+                            <td>@passenger.FirstName @passenger.LastName</td>
+                            <td>@passenger.Age</td>
+                            <td>@passenger.Gender</td>
+                            <td>@passenger.BookingID</td>
+                            <td>
+                                @if (passenger.FlightSeatID != null)
+                                {
+                                    @passenger.FlightSeatID
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Assigned</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            No passengers found.
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- Pagination -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="text-center mt-3">
+
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <a href="@Url.Action("ManagePassengers", "Admin", new {
+                    page = ViewBag.CurrentPage - 1,
+                    flightId = ViewBag.SelectedFlight
+                })"
+                   class="btn btn-outline-primary btn-sm">
+                    Previous
+                </a>
+            }
+
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <a href="@Url.Action("ManagePassengers", "Admin", new {
+                    page = i,
+                    flightId = ViewBag.SelectedFlight
+                })"
+                   class="btn @(i == ViewBag.CurrentPage ? "btn-primary" : "btn-outline-primary") btn-sm">
+                    @i
+                </a>
+            }
+
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <a href="@Url.Action("ManagePassengers", "Admin", new {
+                    page = ViewBag.CurrentPage + 1,
+                    flightId = ViewBag.SelectedFlight
+                })"
+                   class="btn btn-outline-primary btn-sm">
+                    Next
+                </a>
+            }
+
+        </div>
+    }
+
+</div>
