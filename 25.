@@ -1,0 +1,40 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult DeleteBooking(int id)
+{
+    var booking = db.Bookings
+        .FirstOrDefault(b => b.BookingID == id);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    // Only cancelled bookings can be permanently deleted
+    if (booking.BookingStatus != "Cancelled")
+    {
+        TempData["Error"] = "Only cancelled bookings can be deleted.";
+        return RedirectToAction("ManageBooking");
+    }
+
+    // Delete passengers belonging to this booking
+    var passengers = db.Passengers
+        .Where(p => p.BookingID == id)
+        .ToList();
+
+    db.Passengers.RemoveRange(passengers);
+
+    // Delete payment belonging to this booking
+    var payments = db.Payments
+        .Where(p => p.BookingID == id)
+        .ToList();
+
+    db.Payments.RemoveRange(payments);
+
+    // Finally delete booking
+    db.Bookings.Remove(booking);
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Booking deleted successfully.";
+
+    return RedirectToAction("ManageBooking");
+}
