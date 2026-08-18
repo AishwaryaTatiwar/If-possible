@@ -1,0 +1,62 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult EditBooking(int BookingID, string BookingStatus)
+{
+    var booking = db.Bookings
+        .FirstOrDefault(b => b.BookingID == BookingID);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    if (BookingStatus == "Cancelled" && booking.BookingStatus != "Cancelled")
+    {
+        var passengers = db.Passengers
+            .Where(p => p.BookingID == BookingID)
+            .ToList();
+
+        int cancelledSeats = passengers.Count;
+
+        // Free individual seats
+        foreach (var passenger in passengers)
+        {
+            if (passenger.FlightSeatID != null)
+            {
+                var seat = db.FlightSeats.Find(passenger.FlightSeatID);
+
+                if (seat != null)
+                {
+                    seat.IsBooked = false;
+                    seat.PassengerID = null;
+                }
+
+                passenger.FlightSeatID = null;
+            }
+        }
+
+        // Increase available seats
+        var flight = db.Flights
+            .FirstOrDefault(f => f.FlightID == booking.FlightID);
+
+        if (flight != null)
+        {
+            flight.AvailableSeats += cancelledSeats;
+        }
+
+        // Refund payment
+        var payment = db.Payments
+            .FirstOrDefault(p => p.BookingID == BookingID);
+
+        if (payment != null)
+        {
+            payment.PaymentStatus = "Refunded";
+        }
+    }
+
+    booking.BookingStatus = BookingStatus;
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Booking status updated successfully.";
+
+    return RedirectToAction("ManageBooking");
+}
