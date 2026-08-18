@@ -1,0 +1,20 @@
+href="@Url.Action("ManageUsers", "Admin", new {
+    page = ViewBag.CurrentPage - 1,
+    pageSize = ViewBag.PageSize,
+    search = ViewBag.Search,
+    sortOrder = ViewBag.SortOrder
+})"
+
+href="@Url.Action("ManageUsers", "Admin", new {
+    page = i,
+    pageSize = ViewBag.PageSize,
+    search = ViewBag.Search,
+    sortOrder = ViewBag.SortOrder
+})"
+
+href="@Url.Action("ManageUsers", "Admin", new {
+    page = ViewBag.CurrentPage + 1,
+    pageSize = ViewBag.PageSize,
+    search = ViewBag.Search,
+    sortOrder = ViewBag.SortOrder
+})"
