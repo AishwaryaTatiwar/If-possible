@@ -1,0 +1,35 @@
+if (string.IsNullOrWhiteSpace(model.PasswordHash))
+{
+    ViewBag.Message = "Password is required.";
+    return View(model);
+}
+
+if (model.PasswordHash.Length < 8)
+{
+    ViewBag.Message = "Password must be at least 8 characters long.";
+    return View(model);
+}
+
+if (!model.PasswordHash.Any(char.IsUpper))
+{
+    ViewBag.Message = "Password must contain at least one uppercase letter.";
+    return View(model);
+}
+
+if (!model.PasswordHash.Any(char.IsLower))
+{
+    ViewBag.Message = "Password must contain at least one lowercase letter.";
+    return View(model);
+}
+
+if (!model.PasswordHash.Any(char.IsDigit))
+{
+    ViewBag.Message = "Password must contain at least one number.";
+    return View(model);
+}
+
+if (!model.PasswordHash.Any(ch => !char.IsLetterOrDigit(ch)))
+{
+    ViewBag.Message = "Password must contain at least one special character.";
+    return View(model);
+}
