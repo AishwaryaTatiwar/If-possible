@@ -1,0 +1,69 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Authorize]
+public ActionResult CancelBooking(int id)
+{
+    int userId = Convert.ToInt32(Session["UserID"]);
+
+    var booking = db.Bookings
+        .FirstOrDefault(b => b.BookingID == id && b.UserID == userId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    if (booking.BookingStatus == "Cancelled")
+    {
+        TempData["Error"] = "This booking is already cancelled.";
+        return RedirectToAction("Profile");
+    }
+
+    // Get all passengers before changing anything
+    var passengers = db.Passengers
+        .Where(p => p.BookingID == booking.BookingID)
+        .ToList();
+
+    // Store passenger count
+    int passengerCount = passengers.Count;
+
+    // Free all seats assigned to passengers
+    foreach (var passenger in passengers)
+    {
+        if (passenger.FlightSeatID != null)
+        {
+            var seat = db.FlightSeats.Find(passenger.FlightSeatID);
+
+            if (seat != null)
+            {
+                seat.IsBooked = false;
+                seat.PassengerID = null;
+            }
+
+            passenger.FlightSeatID = null;
+        }
+    }
+
+    // Restore available seats
+    var flight = db.Flights.Find(booking.FlightID);
+
+    if (flight != null)
+    {
+        flight.AvailableSeats += passengerCount;
+    }
+
+    // Cancel booking
+    booking.BookingStatus = "Cancelled";
+
+    // Refund payment
+    var payment = db.Payments
+        .FirstOrDefault(p => p.BookingID == booking.BookingID);
+
+    if (payment != null)
+    {
+        payment.PaymentStatus = "Refunded";
+    }
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Booking cancelled successfully.";
+    return RedirectToAction("Profile");
+}
