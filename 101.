@@ -1,0 +1,31 @@
+<th>
+    <a href="@Url.Action("ManageUsers", "Admin", new { search = ViewBag.Search, sortOrder = ViewBag.SortOrder == "userid" ? "userid_desc" : "userid", page = 1, pageSize = ViewBag.PageSize })">
+        User ID
+    </a>
+</th>
+
+<th>
+    <a href="@Url.Action("ManageUsers", "Admin", new { search = ViewBag.Search, sortOrder = ViewBag.SortOrder == "username" ? "username_desc" : "username", page = 1, pageSize = ViewBag.PageSize })">
+        Username
+    </a>
+</th>
+
+<th>
+    <a href="@Url.Action("ManageUsers", "Admin", new { search = ViewBag.Search, sortOrder = ViewBag.SortOrder == "email" ? "email_desc" : "email", page = 1, pageSize = ViewBag.PageSize })">
+        Email
+    </a>
+</th>
+
+<th>
+    <a href="@Url.Action("ManageUsers", "Admin", new { search = ViewBag.Search, sortOrder = ViewBag.SortOrder == "role" ? "role_desc" : "role", page = 1, pageSize = ViewBag.PageSize })">
+        Role
+    </a>
+</th>
+
+<th>
+    <a href="@Url.Action("ManageUsers", "Admin", new { search = ViewBag.Search, sortOrder = ViewBag.SortOrder == "created" ? "created_desc" : "created", page = 1, pageSize = ViewBag.PageSize })">
+        Created On
+    </a>
+</th>
+
+<th style="width:120px;">Action</th>
