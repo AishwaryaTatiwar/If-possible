@@ -1,0 +1,36 @@
+switch (sortOrder)
+{
+    case "userid":
+        users = users.OrderBy(u => u.UserID);
+        break;
+    case "userid_desc":
+        users = users.OrderByDescending(u => u.UserID);
+        break;
+    case "username":
+        users = users.OrderBy(u => u.Username);
+        break;
+    case "username_desc":
+        users = users.OrderByDescending(u => u.Username);
+        break;
+    case "email":
+        users = users.OrderBy(u => u.Email);
+        break;
+    case "email_desc":
+        users = users.OrderByDescending(u => u.Email);
+        break;
+    case "role":
+        users = users.OrderBy(u => u.Role);
+        break;
+    case "role_desc":
+        users = users.OrderByDescending(u => u.Role);
+        break;
+    case "created":
+        users = users.OrderBy(u => u.CreatedOn);
+        break;
+    case "created_desc":
+        users = users.OrderByDescending(u => u.CreatedOn);
+        break;
+    default:
+        users = users.OrderBy(u => u.UserID);
+        break;
+}
