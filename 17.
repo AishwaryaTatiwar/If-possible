@@ -1,0 +1,48 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Authorize]
+public ActionResult DeleteBooking(int id)
+{
+    var booking = db.Bookings
+        .FirstOrDefault(b => b.BookingID == id);
+
+    if (booking == null)
+    {
+        TempData["Error"] = "Booking not found.";
+        return RedirectToAction("ManageBooking");
+    }
+
+    if (booking.BookingStatus != "Cancelled")
+    {
+        TempData["Error"] = "Only cancelled bookings can be deleted.";
+        return RedirectToAction("ManageBooking");
+    }
+
+    var passengers = db.Passengers
+        .Where(p => p.BookingID == booking.BookingID)
+        .ToList();
+
+    foreach (var passenger in passengers)
+    {
+        if (passenger.FlightSeatID != null)
+        {
+            var seat = db.FlightSeats.Find(passenger.FlightSeatID);
+
+            if (seat != null)
+            {
+                seat.IsBooked = false;
+                seat.PassengerID = null;
+            }
+
+            passenger.FlightSeatID = null;
+        }
+    }
+
+    db.Passengers.RemoveRange(passengers);
+    db.Bookings.Remove(booking);
+    db.SaveChanges();
+
+    TempData["Success"] = "Cancelled booking deleted successfully.";
+
+    return RedirectToAction("ManageBooking");
+}
