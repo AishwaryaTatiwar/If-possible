@@ -1,0 +1,11 @@
+<select name="airline" class="form-select">
+    <option value="">All Airlines</option>
+
+    @foreach (var airlineName in ViewBag.Airlines)
+    {
+        <option value="@airlineName"
+                @(ViewBag.Airline == airlineName ? "selected" : "")>
+            @airlineName
+        </option>
+    }
+</select>
