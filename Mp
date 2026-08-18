@@ -1,0 +1,28 @@
+public ActionResult ManagePassengers(string search)
+{
+    var passengers = db.Passengers.AsQueryable();
+
+    if (!string.IsNullOrEmpty(search))
+    {
+        passengers = passengers.Where(p =>
+            p.FirstName.Contains(search) ||
+            p.LastName.Contains(search) ||
+            p.Email.Contains(search));
+    }
+
+    var passengerList = passengers.ToList();
+
+    ViewBag.Search = search;
+
+    ViewBag.SeatNumbers = passengerList.ToDictionary(
+        p => p.PassengerID,
+        p => p.FlightSeatID.HasValue
+            ? db.FlightSeats
+                .Where(s => s.FlightSeatID == p.FlightSeatID.Value)
+                .Select(s => s.SeatNumber)
+                .FirstOrDefault()
+            : null
+    );
+
+    return View(passengerList);
+}
