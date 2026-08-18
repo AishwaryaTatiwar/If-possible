@@ -1,0 +1,6 @@
+$(".delete-booking-btn").click(function () {
+    var id = $(this).data("id");
+
+    $("#deleteBookingId").val(id);
+    $("#deleteBookingModal").modal("show");
+});
