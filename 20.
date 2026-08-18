@@ -1,0 +1,49 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Authorize]
+public ActionResult DeleteBooking(int id)
+{
+    var booking = db.Bookings.FirstOrDefault(b => b.BookingID == id);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    // 1. Get passengers of this booking
+    var passengers = db.Passengers
+        .Where(p => p.BookingID == id)
+        .ToList();
+
+    // 2. Free their seats
+    foreach (var passenger in passengers)
+    {
+        if (passenger.FlightSeatID != null)
+        {
+            var seat = db.FlightSeats.Find(passenger.FlightSeatID);
+
+            if (seat != null)
+            {
+                seat.IsBooked = false;
+                seat.PassengerID = null;
+            }
+        }
+    }
+
+    // 3. Delete passengers
+    db.Passengers.RemoveRange(passengers);
+
+    // 4. Delete payment
+    var payment = db.Payments
+        .FirstOrDefault(p => p.BookingID == id);
+
+    if (payment != null)
+        db.Payments.Remove(payment);
+
+    // 5. Delete booking
+    db.Bookings.Remove(booking);
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Booking deleted successfully.";
+
+    return RedirectToAction("ManageBooking");
+}
