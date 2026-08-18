@@ -1,0 +1,27 @@
+<form method="get" action="@Url.Action("ManagePassengers", "Admin")">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Filter by Flight</label>
+            <select name="flightId" class="form-select">
+                <option value="">All Flights</option>
+                @foreach (var flight in ViewBag.Flights)
+                {
+                    <option value="@flight.FlightID"
+                            @(ViewBag.SelectedFlight == flight.FlightID ? "selected" : "")>
+                        @flight.FlightNumber to @flight.Destination
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Search Passenger</label>
+            <input type="text" name="search" value="@Request.QueryString["search"]" class="form-control" placeholder="Enter passenger name" />
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2">Filter</button>
+            <a href="@Url.Action("ManagePassengers", "Admin")" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
