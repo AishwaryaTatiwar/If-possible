@@ -1,0 +1,5 @@
+SELECT 
+    cc.name AS ConstraintName,
+    cc.definition AS ConstraintDefinition
+FROM sys.check_constraints cc
+WHERE cc.parent_object_id = OBJECT_ID('dbo.Payments');
